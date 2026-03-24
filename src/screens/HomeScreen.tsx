@@ -1,6 +1,5 @@
 import React, { useContext, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, FlatList } from 'react-native';
-// Удаляем Alert из импорта, он нам больше не нужен!
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
@@ -20,10 +19,9 @@ export const HomeScreen = ({ navigation }: Props) => {
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [date, setDate] = useState(new Date());
+  const[date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  // 1. Стейт для ошибки
   const [error, setError] = useState('');
 
   if (!diaryContext || !themeContext) return <Text>Loading...</Text>;
@@ -31,7 +29,6 @@ export const HomeScreen = ({ navigation }: Props) => {
   const { isDarkMode } = themeContext;
 
   const handleAdd = () => {
-    // 2. Валидация: если пусто, ставим ошибку и выходим
     if (title.trim() === '' || description.trim() === '') {
       setError(t('error_fill_fields'));
       return;
@@ -40,7 +37,7 @@ export const HomeScreen = ({ navigation }: Props) => {
     setTitle('');
     setDescription('');
     setDate(new Date());
-    setError(''); // Сбрасываем ошибку при успехе
+    setError('');
   };
 
   const bgColor = isDarkMode ? '#121212' : '#f5f5f5';
@@ -54,7 +51,7 @@ export const HomeScreen = ({ navigation }: Props) => {
         <TextInput
           style={[styles.input, { color: textColor, borderColor: isDarkMode ? '#333' : '#ddd' }]}
           placeholder={t('input_title')} placeholderTextColor={placeholderColor}
-          value={title}ь
+          value={title}
           onChangeText={(text) => { setTitle(text); setError(''); }}
         />
         <TextInput
@@ -105,12 +102,21 @@ export const HomeScreen = ({ navigation }: Props) => {
           </Text>
         }
       />
-      <CustomButton
-        title={t('settings')}
-        onPress={() => navigation.navigate('Settings')}
-        color="#6c757d"
-        style={{ marginTop: 15 }}
-      />
+      
+      <View style={styles.bottomButtons}>
+        <CustomButton
+          title={t('news')}
+          onPress={() => navigation.navigate('News')}
+          color="#007AFF"
+          style={{ flex: 1, marginRight: 8 }}
+        />
+        <CustomButton
+          title={t('settings')}
+          onPress={() => navigation.navigate('Settings')}
+          color="#6c757d"
+          style={{ flex: 1, marginLeft: 8 }}
+        />
+      </View>
     </View>
   );
 };
@@ -121,5 +127,6 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, padding: 10, marginBottom: 10, borderRadius: 6 },
   dateRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
   headerTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
-  errorText: { color: '#ff3b30', marginBottom: 10, textAlign: 'center', fontWeight: '500' }
+  errorText: { color: '#ff3b30', marginBottom: 10, textAlign: 'center', fontWeight: '500' },
+  bottomButtons: { flexDirection: 'row', marginTop: 15, justifyContent: 'space-between' }
 });

@@ -9,4 +9,5 @@ export type RootStackParamList = {
     Home: undefined;
     Details: { recordId: string };
     Settings: undefined;
+    News: undefined;
 }

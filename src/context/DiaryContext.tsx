@@ -1,8 +1,6 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SQLite from 'expo-sqlite';
 import { ActivityRecord } from '../types';
-
-const STORAGE_KEY = '@diary_records';
 
 interface DiaryContextType {
   records: ActivityRecord[];
@@ -14,49 +12,78 @@ interface DiaryContextType {
 
 export const DiaryContext = createContext<DiaryContextType | undefined>(undefined);
 
+const db = SQLite.openDatabaseSync('healthDiary.db');
+
 export const DiaryProvider = ({ children }: { children: ReactNode }) => {
   const [records, setRecords] = useState<ActivityRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    initDB();
     loadRecords();
   },[]);
 
-  const loadRecords = async () => {
+  const initDB = () => {
     try {
-      const jsonValue = await AsyncStorage.getItem(STORAGE_KEY);
-      if (jsonValue !== null) setRecords(JSON.parse(jsonValue));
+      db.execSync(`
+        CREATE TABLE IF NOT EXISTS diary (
+          id TEXT PRIMARY KEY NOT NULL,
+          title TEXT NOT NULL,
+          description TEXT NOT NULL,
+          date TEXT NOT NULL
+        );
+      `);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const loadRecords = () => {
+    try {
+      const allRows = db.getAllSync('SELECT * FROM diary ORDER BY date DESC;');
+      setRecords(allRows as ActivityRecord[]);
     } catch (e) {
-      console.error('Ошибка загрузки данных', e);
+      console.error(e);
     } finally {
       setIsLoading(false);
     }
   };
 
   const addRecord = async (title: string, description: string, date: string) => {
-    const newRecord: ActivityRecord = {
-      id: Date.now().toString(),
-      title,
-      description,
-      date, 
-    };
-    const updatedRecords =[newRecord, ...records];
-    setRecords(updatedRecords);
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedRecords));
+    const id = Date.now().toString();
+    try {
+      const statement = db.prepareSync('INSERT INTO diary (id, title, description, date) VALUES (?, ?, ?, ?)');
+      statement.executeSync([id, title, description, date]);
+      
+      const newRecord = { id, title, description, date };
+      setRecords(prev => [newRecord, ...prev]);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const deleteRecord = async (id: string) => {
-    const updatedRecords = records.filter(record => record.id !== id);
-    setRecords(updatedRecords);
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedRecords));
+    try {
+      const statement = db.prepareSync('DELETE FROM diary WHERE id = ?');
+      statement.executeSync([id]);
+      
+      setRecords(prev => prev.filter(record => record.id !== id));
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const editRecord = async (id: string, title: string, description: string, date: string) => {
-    const updatedRecords = records.map(record => 
-      record.id === id ? { ...record, title, description, date } : record
-    );
-    setRecords(updatedRecords);
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedRecords));
+    try {
+      const statement = db.prepareSync('UPDATE diary SET title = ?, description = ?, date = ? WHERE id = ?');
+      statement.executeSync([title, description, date, id]);
+      
+      setRecords(prev => prev.map(record => 
+        record.id === id ? { ...record, title, description, date } : record
+      ));
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (

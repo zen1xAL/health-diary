@@ -144,18 +144,63 @@ export const DetailsScreen = ({ route }: Props) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
-  card: { padding: 20, borderRadius: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
+  card: {
+    padding: 20,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3
+  },
   title: { fontSize: 24, fontWeight: 'bold', marginBottom: 8 },
   date: { fontSize: 14, color: '#888', marginBottom: 16 },
   divider: { height: 1, backgroundColor: '#eee', marginVertical: 16 },
   description: { fontSize: 16, lineHeight: 24 },
   buttonContainer: { marginTop: 30 },
-  errorText: { fontSize: 16, color: '#ff3b30', textAlign: 'center', marginBottom: 15, fontWeight: '500' },
-  modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
-  modalBox: { width: '85%', padding: 20, borderRadius: 12, elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4 },
-  modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15, textAlign: 'center' },
-  modalText: { fontSize: 16, marginBottom: 20, textAlign: 'center' },
-  input: { borderWidth: 1, padding: 10, marginBottom: 15, borderRadius: 6, fontSize: 16 },
-  modalButtons: { flexDirection: 'row', justifyContent: 'space-around', borderTopWidth: 1, borderTopColor: '#55555555', paddingTop: 15 },
+  errorText: {
+    fontSize: 16,
+    color: '#ff3b30',
+    textAlign: 'center',
+    marginBottom: 15,
+    fontWeight: '500'
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)'
+  },
+  modalBox: {
+    width: '85%',
+    padding: 20,
+    borderRadius: 12,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25, shadowRadius: 4
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    textAlign: 'center'
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: 'center'
+  },
+  input: {
+    borderWidth: 1,
+    padding: 10,
+    marginBottom: 15,
+    borderRadius: 6,
+    fontSize: 16
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    borderTopWidth: 1,
+    borderTopColor: '#55555555',
+    paddingTop: 15
+  },
   modalActionBtn: { padding: 10, minWidth: 80, alignItems: 'center' }
 });

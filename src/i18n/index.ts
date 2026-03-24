@@ -26,6 +26,8 @@ const resources = {
       pick_date: "Изменить дату",
       empty_list: "Список пуст. Добавьте свою первую запись!",
       error_fill_fields: "Пожалуйста, заполните все поля",
+      news: "Новости здоровья",
+      offline_warning: "Нет подключения к сети. Показаны сохраненные новости."
     }
   },
   en: {
@@ -51,6 +53,8 @@ const resources = {
       pick_date: "Change Date",
       empty_list: "The list is empty. Add your first record!",
       error_fill_fields: "Please fill in all fields",
+      news: "Health News",
+      offline_warning: "No network connection. Showing cached news."
     }
   }
 };

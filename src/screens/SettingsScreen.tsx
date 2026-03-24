@@ -31,26 +31,20 @@ export const SettingsScreen = () => {
   return (
     <View style={[styles.container, { backgroundColor }]}>
 
-      {/* --- БЛОК 1: ТЕМА --- */}
       <View style={[styles.card, { backgroundColor: cardColor }]}>
         <View style={styles.settingRow}>
-          {/* Вместо "Темная тема" используем ключ из словаря */}
           <Text style={[styles.text, { color: textColor }]}>{t('dark_theme')}</Text>
           <Switch value={isDarkMode} onValueChange={toggleTheme} />
         </View>
 
-        {/* Разделитель */}
         <View style={styles.divider} />
 
-        {/* --- БЛОК 2: ЯЗЫК --- */}
         <View style={styles.settingRow}>
           <Text style={[styles.text, { color: textColor }]}>{t('language')}</Text>
 
-          {/* Кастомный переключатель (Toggle Group) */}
           <View style={styles.langToggle}>
 
             <TouchableOpacity
-              // Если язык 'ru', применяем активный стиль
               style={[styles.langButton, currentLang === 'ru' && styles.langButtonActive]}
               onPress={() => changeLanguage('ru')}
             >

@@ -7,6 +7,7 @@ import { RootStackParamList } from '../types';
 import { HomeScreen } from '../screens/HomeScreen';
 import { DetailsScreen } from '../screens/DetailsScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
+import { NewsScreen } from '../screens/NewsScreen';
 import { ThemeContext } from '../context/ThemeContext';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -24,6 +25,7 @@ export const AppNavigator = () => {
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: t('home_title') }} />
         <Stack.Screen name="Details" component={DetailsScreen} options={{ title: t('details') }} />
         <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: t('settings') }} />
+        <Stack.Screen name="News" component={NewsScreen} options={{ title: t('news') }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
