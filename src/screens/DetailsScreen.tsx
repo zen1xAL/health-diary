@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, Modal, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Alert, Image, ScrollView } from 'react-native';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
@@ -19,17 +19,17 @@ export const DetailsScreen = ({ route }: Props) => {
 
   const context = useContext(DiaryContext);
   const themeContext = useContext(ThemeContext);
-
+  
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-
+  
   const [editTitle, setEditTitle] = useState('');
-  const [editDesc, setEditDesc] = useState('');
-
+  const[editDesc, setEditDesc] = useState('');
+  
   const [error, setError] = useState('');
 
-  if (!context || !themeContext) return <Text>Loading...</Text>;
-
+  if (!context || !themeContext) return null;
+  
   const { records, deleteRecord, editRecord } = context;
   const { isDarkMode } = themeContext;
   const record = records.find(item => item.id === recordId);
@@ -60,7 +60,7 @@ export const DetailsScreen = ({ route }: Props) => {
       setError(t('error_fill_fields'));
       return;
     }
-    editRecord(record.id, editTitle, editDesc, record.date);
+    editRecord(record.id, editTitle, editDesc, record.date, record.category || '', record.imageUrl || '');
     setIsEditModalVisible(false);
   };
 
@@ -71,8 +71,13 @@ export const DetailsScreen = ({ route }: Props) => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: bgColor }]}>
+    <ScrollView style={[styles.container, { backgroundColor: bgColor }]}>
       <View style={[styles.card, { backgroundColor: cardColor }]}>
+        
+        {record.imageUrl ? (
+          <Image source={{ uri: record.imageUrl }} style={styles.mainImage} />
+        ) : null}
+
         <Text style={[styles.title, { color: textColor }]}>{record.title}</Text>
         <Text style={[styles.date, { color: textColor }]}>
           {new Date(record.date).toLocaleDateString()}
@@ -104,29 +109,12 @@ export const DetailsScreen = ({ route }: Props) => {
       </Modal>
 
       <Modal visible={isEditModalVisible} transparent={true} animationType="slide">
-        <KeyboardAvoidingView
-          style={styles.modalOverlay}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        >
+        <KeyboardAvoidingView style={styles.modalOverlay} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <View style={[styles.modalBox, { backgroundColor: cardColor }]}>
             <Text style={[styles.modalTitle, { color: textColor }]}>{t('edit_title')}</Text>
-
-            <TextInput
-              style={[styles.input, { color: textColor, borderColor: isDarkMode ? '#555' : '#ddd' }]}
-              placeholderTextColor={placeholderColor}
-              value={editTitle}
-              onChangeText={(text) => { setEditTitle(text); setError(''); }}
-            />
-            <TextInput
-              style={[styles.input, { color: textColor, borderColor: isDarkMode ? '#555' : '#ddd', height: 80 }]}
-              multiline={true}
-              placeholderTextColor={placeholderColor}
-              value={editDesc}
-              onChangeText={(text) => { setEditDesc(text); setError(''); }}
-            />
-
+            <TextInput style={[styles.input, { color: textColor, borderColor: isDarkMode ? '#555' : '#ddd' }]} placeholderTextColor={placeholderColor} value={editTitle} onChangeText={(text) => { setEditTitle(text); setError(''); }} />
+            <TextInput style={[styles.input, { color: textColor, borderColor: isDarkMode ? '#555' : '#ddd', height: 80 }]} multiline={true} placeholderTextColor={placeholderColor} value={editDesc} onChangeText={(text) => { setEditDesc(text); setError(''); }} />
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
             <View style={styles.modalButtons}>
               <TouchableOpacity onPress={() => setIsEditModalVisible(false)} style={styles.modalActionBtn}>
                 <Text style={{ color: '#ff3b30', fontSize: 16 }}>{t('cancel')}</Text>
@@ -138,69 +126,25 @@ export const DetailsScreen = ({ route }: Props) => {
           </View>
         </KeyboardAvoidingView>
       </Modal>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
-  card: {
-    padding: 20,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3
-  },
+  card: { padding: 20, borderRadius: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
+  mainImage: { width: '100%', height: 200, borderRadius: 8, marginBottom: 16, resizeMode: 'cover', backgroundColor: '#ddd' },
   title: { fontSize: 24, fontWeight: 'bold', marginBottom: 8 },
   date: { fontSize: 14, color: '#888', marginBottom: 16 },
   divider: { height: 1, backgroundColor: '#eee', marginVertical: 16 },
   description: { fontSize: 16, lineHeight: 24 },
-  buttonContainer: { marginTop: 30 },
-  errorText: {
-    fontSize: 16,
-    color: '#ff3b30',
-    textAlign: 'center',
-    marginBottom: 15,
-    fontWeight: '500'
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)'
-  },
-  modalBox: {
-    width: '85%',
-    padding: 20,
-    borderRadius: 12,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25, shadowRadius: 4
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    textAlign: 'center'
-  },
-  modalText: {
-    fontSize: 16,
-    marginBottom: 20,
-    textAlign: 'center'
-  },
-  input: {
-    borderWidth: 1,
-    padding: 10,
-    marginBottom: 15,
-    borderRadius: 6,
-    fontSize: 16
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    borderTopWidth: 1,
-    borderTopColor: '#55555555',
-    paddingTop: 15
-  },
+  buttonContainer: { marginTop: 30, marginBottom: 40 },
+  errorText: { fontSize: 16, color: '#ff3b30', textAlign: 'center', marginBottom: 15, fontWeight: '500' },
+  modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
+  modalBox: { width: '85%', padding: 20, borderRadius: 12, elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4 },
+  modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15, textAlign: 'center' },
+  modalText: { fontSize: 16, marginBottom: 20, textAlign: 'center' },
+  input: { borderWidth: 1, padding: 10, marginBottom: 15, borderRadius: 6, fontSize: 16 },
+  modalButtons: { flexDirection: 'row', justifyContent: 'space-around', borderTopWidth: 1, borderTopColor: '#55555555', paddingTop: 15 },
   modalActionBtn: { padding: 10, minWidth: 80, alignItems: 'center' }
 });

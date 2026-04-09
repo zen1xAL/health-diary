@@ -1,18 +1,20 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import * as SQLite from 'expo-sqlite';
 import { ActivityRecord } from '../types';
+import { firestore } from '../services/firebase';
+import { doc, setDoc, deleteDoc } from 'firebase/firestore';
 
 interface DiaryContextType {
   records: ActivityRecord[];
-  addRecord: (title: string, description: string, date: string) => Promise<void>;
+  addRecord: (title: string, description: string, date: string, category: string, imageUrl: string) => Promise<void>;
   deleteRecord: (id: string) => Promise<void>;
-  editRecord: (id: string, title: string, description: string, date: string) => Promise<void>;
+  editRecord: (id: string, title: string, description: string, date: string, category: string, imageUrl: string) => Promise<void>;
   isLoading: boolean;
 }
 
 export const DiaryContext = createContext<DiaryContextType | undefined>(undefined);
 
-const db = SQLite.openDatabaseSync('healthDiary.db');
+const db = SQLite.openDatabaseSync('healthDiaryV2.db');
 
 export const DiaryProvider = ({ children }: { children: ReactNode }) => {
   const [records, setRecords] = useState<ActivityRecord[]>([]);
@@ -30,7 +32,9 @@ export const DiaryProvider = ({ children }: { children: ReactNode }) => {
           id TEXT PRIMARY KEY NOT NULL,
           title TEXT NOT NULL,
           description TEXT NOT NULL,
-          date TEXT NOT NULL
+          date TEXT NOT NULL,
+          category TEXT,
+          imageUrl TEXT
         );
       `);
     } catch (error) {
@@ -49,14 +53,14 @@ export const DiaryProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const addRecord = async (title: string, description: string, date: string) => {
+  const addRecord = async (title: string, description: string, date: string, category: string, imageUrl: string) => {
     const id = Date.now().toString();
+    const newRecord = { id, title, description, date, category, imageUrl };
     try {
-      const statement = db.prepareSync('INSERT INTO diary (id, title, description, date) VALUES (?, ?, ?, ?)');
-      statement.executeSync([id, title, description, date]);
-      
-      const newRecord = { id, title, description, date };
+      const statement = db.prepareSync('INSERT INTO diary (id, title, description, date, category, imageUrl) VALUES (?, ?, ?, ?, ?, ?)');
+      statement.executeSync([id, title, description, date, category, imageUrl]);
       setRecords(prev => [newRecord, ...prev]);
+      await setDoc(doc(firestore, 'diary', id), newRecord);
     } catch (e) {
       console.error(e);
     }
@@ -66,21 +70,20 @@ export const DiaryProvider = ({ children }: { children: ReactNode }) => {
     try {
       const statement = db.prepareSync('DELETE FROM diary WHERE id = ?');
       statement.executeSync([id]);
-      
       setRecords(prev => prev.filter(record => record.id !== id));
+      await deleteDoc(doc(firestore, 'diary', id));
     } catch (e) {
       console.error(e);
     }
   };
 
-  const editRecord = async (id: string, title: string, description: string, date: string) => {
+  const editRecord = async (id: string, title: string, description: string, date: string, category: string, imageUrl: string) => {
+    const updatedRecord = { id, title, description, date, category, imageUrl };
     try {
-      const statement = db.prepareSync('UPDATE diary SET title = ?, description = ?, date = ? WHERE id = ?');
-      statement.executeSync([title, description, date, id]);
-      
-      setRecords(prev => prev.map(record => 
-        record.id === id ? { ...record, title, description, date } : record
-      ));
+      const statement = db.prepareSync('UPDATE diary SET title = ?, description = ?, date = ?, category = ?, imageUrl = ? WHERE id = ?');
+      statement.executeSync([title, description, date, category, imageUrl, id]);
+      setRecords(prev => prev.map(record => record.id === id ? updatedRecord : record));
+      await setDoc(doc(firestore, 'diary', id), updatedRecord);
     } catch (e) {
       console.error(e);
     }

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, View, Image } from 'react-native';
 import { ActivityRecord } from '../types';
 import { ThemeContext } from '../context/ThemeContext';
 
@@ -21,22 +21,22 @@ export const RecordCard = ({ item, onPress }: RecordCardProps) => {
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <Text style={[styles.title, { color: textColor }]}>{item.title}</Text>
-      <Text style={styles.date}>{new Date(item.date).toLocaleDateString()}</Text>
+      {item.imageUrl ? (
+        <Image source={{ uri: item.imageUrl }} style={styles.thumbnail} />
+      ) : null}
+      
+      <View style={styles.textContainer}>
+        <Text style={[styles.title, { color: textColor }]}>{item.title}</Text>
+        <Text style={styles.date}>{new Date(item.date).toLocaleDateString()}</Text>
+      </View>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  card: {
-    padding: 16,
-    marginBottom: 10,
-    borderRadius: 8,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3
-  },
-  title: { fontSize: 16, fontWeight: '600' },
-  date: { color: '#888' }
+  card: { padding: 16, marginBottom: 10, borderRadius: 8, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
+  thumbnail: { width: 50, height: 50, borderRadius: 8, marginRight: 15, backgroundColor: '#ddd' },
+  textContainer: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  title: { fontSize: 16, fontWeight: '600', flex: 1 },
+  date: { color: '#888', marginLeft: 10 }
 });

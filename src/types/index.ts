@@ -3,6 +3,8 @@ export interface ActivityRecord {
     title: string;
     description: string;
     date: string;
+    category?: string;
+    imageUrl?: string;
 }
 
 export type RootStackParamList = {
